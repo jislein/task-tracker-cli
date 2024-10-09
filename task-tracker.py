@@ -16,7 +16,7 @@ class TaskManager:
         new_task = dict(description=new_task_description,status=new_task_status,createdAt=new_task_createdAt,updatedAt=new_task_updatedAt)
         self.task_list[new_task_id] = new_task
         print(f"New task added successfully (ID: {new_task_id}).")
-        self.save_to_file()
+        self.save_data()
         #print(self.task_list)
     
     def update_task(self, task_id, new_description):
@@ -30,7 +30,7 @@ class TaskManager:
             self.task_list[task_id]["description"] = new_description
             self.task_updated(task_id)
             print(f"Task updated successfully\nFrom: {old_description}\n To: {self.task_list[task_id]["description"]}")        
-            self.save_to_file()
+            self.save_data()
         else:
             print(f"Error: Task with ID: {task_id} does not exist.")
 
@@ -42,7 +42,7 @@ class TaskManager:
             if len(self.task_list) == 1:
                 self.task_list.pop(task_id)
                 print("Task deleted successfully.")
-                self.save_to_file()
+                self.save_data()
             else:
                 self.task_list.pop(task_id)
                 new_dict = dict()
@@ -51,7 +51,7 @@ class TaskManager:
                 #print(new_dict)
                 self.task_list = new_dict.copy()
                 # print(self.task_list)
-                self.save_to_file()
+                self.save_data()
         else:
             print(f"Error: Task with ID: {task_id} does not exist.")
     
@@ -62,11 +62,16 @@ class TaskManager:
         if self.task_list.get(task_id) != None:
             self.task_list[task_id]["status"] = new_status
             self.task_updated(task_id)
-            self.save_to_file()
+            self.save_data()
         else:
             print(f"Error: Task with ID: {task_id} does not exist.")
 
+    # If no argument is passed, lists all tasks.
     def list_tasks(self, args):
+        if len(self.task_list) == 0:
+            print("Error: Task list is emtpy.")
+            return
+
         if args.done:
             for task_id in self.task_list:
                 if self.task_list[task_id]["status"] == "done":
@@ -104,15 +109,16 @@ class TaskManager:
 
 
 
-
-    def save_to_file(self):
+    # Saves tasks to a JSON file.
+    def save_data(self):
         print("Saving to JSON file...")
-        with open("tasks.json", "w") as outfile:
+        with open("tasks_data.json", "w") as outfile:
             json.dump(self.task_list,outfile,indent=4)
             print("JSON file updated successfully.")
     
-    def load_json(self):
-        with open("tasks.json", "r") as json_file:
+    # Load tasks from a JSON file.
+    def load_data(self):
+        with open("tasks_data.json", "r") as json_file:
             self.task_list = json.loads(json_file.read())
             #print("JSON file loaded successfully.")
             
@@ -121,9 +127,12 @@ class TaskManager:
 
 
 def main():
+
+    # Creates TaskManager object to handle tasks operations
     tm = TaskManager()
-    if os.path.isfile("tasks.json"):
-        tm.load_json()
+    # Checks if there is any data to load.
+    if os.path.isfile("tasks_data.json"):
+        tm.load_data()
 
     parser = argparse.ArgumentParser(description='Task Tracker CLI App.')
     subparsers = parser.add_subparsers(dest='command', help='Available commands to run: add, update, delete', required=True)
