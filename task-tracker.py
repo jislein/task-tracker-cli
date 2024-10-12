@@ -3,6 +3,9 @@ import datetime
 import json
 import os
 
+
+
+
 STATUS_TODO = "todo"
 STATUS_DONE = 'done'
 STATUS_IN_PROGRESS = "in-progress"
@@ -12,8 +15,16 @@ ERROR_TASK_LIST_EMPTY = "Error: Task list is emtpy."
 JSON_FILE_PATH = "tasks_data.json"
 
 class TaskManager:
+
+    # TODO:
+    # A JSON file that saves the task list and the coutners
+
     # Where tasks are stored
     task_list = dict()
+
+    done_count = 0
+    todo_count = 0
+    in_progress_count = 0
 
     def add_task(self, task):
         new_task_id = len(self.task_list) + 1        
@@ -24,11 +35,13 @@ class TaskManager:
 
         new_task = dict(description=new_task_description,status=new_task_status,createdAt=new_task_createdAt,updatedAt=new_task_updatedAt)
         self.task_list[new_task_id] = new_task
+        self.increase_status_count()
         print(f"New task added successfully (ID: {new_task_id}).")
         self.print_task(new_task_id)
 
         self.save_data()
     
+    # Changes task description.
     def update_task(self, task_id, new_description):
         if len(self.task_list) == 0:
             print(ERROR_TASK_LIST_EMPTY)
@@ -45,42 +58,64 @@ class TaskManager:
             print(f"Error: Task with ID: {task_id} does not exist.")
 
     def delete_task(self, task_id):
+        # Here we check if the list is empty.
         if len(self.task_list) == 0:
             print(ERROR_TASK_LIST_EMPTY)
             return
-        
+        # Checks if the tasks exist.
         if self.task_list.get(task_id) != None:
+            # Do a simple pop() if there is only one task in the list
             if len(self.task_list) == 1:
-                self.task_list.pop(task_id)
+                deleted_task = self.task_list.pop(task_id)
+                
                 print("Task deleted successfully.")
+                self.print_status_count()
+                self.decrease_status_count(deleted_task[task_id]["status"])
+                self.print_status_count()
                 self.save_data()
             elif task_id == str(len(self.task_list)):
-                self.task_list.pop(task_id)
-                # print("LAST Task deleted successfully.")
+                deleted_task = self.task_list.pop(task_id)
+                print("Task deleted successfully.")
+                self.print_status_count()
+                self.decrease_status_count(deleted_task[task_id]["status"])
+                self.print_status_count()
                 self.save_data()
             else:
-                self.task_list.pop(task_id)
+                deleted_task = self.task_list.pop(task_id)
+                print(f"This is the element that will be deleted:\n {deleted_task}")
                 new_dict = dict()
                 # When there are more than 1 task and the task deleted is not the last one, we need to re-assign the IDs
                 for count, key in enumerate(self.task_list, start=1):
                     new_dict[count] = self.task_list.get(key)                
-                #print(new_dict)
+                
                 self.task_list = new_dict.copy()
-                # print(self.task_list)
+                
                 print("Task deleted successfully.")
+                self.print_status_count()
+                self.decrease_status_count(deleted_task["status"])
+                self.print_status_count()
                 self.save_data()
         else:
             print(f"Error: Task with ID: {task_id} does not exist.")
     
     def update_status(self, task_id, new_status):
+        
         if len(self.task_list) == 0:
             print(ERROR_TASK_LIST_EMPTY)
             return
+        # First we check if the task exist.
         if self.task_list.get(task_id) != None:
-            if new_status == self.task_list[task_id]["status"]:
-                print(f"Task already {new_status}.")
+            current_status = self.task_list[task_id]["status"]
+            # Here we check if the current status is the same as the new status.
+            if new_status == current_status:
+                print(f"Error: Task already with status: {new_status}.")
+                return
+            self.increase_status_count(new_status)
+            self.decrease_status_count(current_status)
             self.task_list[task_id]["status"] = new_status
+
             self.task_updated(task_id)
+            # self.print_status_count()
             self.save_data()
         else:
             print(f"Error: Task with ID: {task_id} does not exist.")
@@ -90,6 +125,7 @@ class TaskManager:
         if len(self.task_list) == 0:
             print(ERROR_TASK_LIST_EMPTY)
             return
+        # TODO: Print feedback when there are no task with the specified status. For example: print("There are no task marked as 'done'")
         if args.done:
             self.print_list(STATUS_DONE)            
             return
@@ -103,18 +139,27 @@ class TaskManager:
             self.print_list()            
 
     def print_list(self, status="all"):        
-        if status == STATUS_DONE:
+        if status != "all":
+            if status == STATUS_DONE and self.done_count == 0:
+                print(f"Error: There are no tasks marked as: {STATUS_DONE}")
+                return
+            if status == STATUS_TODO and self.todo_count == 0:
+                print(f"Error: There are no tasks marked as: {STATUS_TODO}")
+                return
+            if status == STATUS_IN_PROGRESS and self.in_progress_count == 0:
+                print(f"Error: There are no tasks marked as: {STATUS_IN_PROGRESS}")
+                return
             for task_id in self.task_list:
                 if self.task_list[task_id]["status"] == status:                    
                     self.print_task(task_id)
-        elif status == STATUS_TODO:
-            for task_id in self.task_list:
-                if self.task_list[task_id]["status"] == status:                    
-                    self.print_task(task_id)
-        elif status == STATUS_IN_PROGRESS:
-            for task_id in self.task_list:
-                if self.task_list[task_id]["status"] == status:                    
-                    self.print_task(task_id)
+        # elif status == STATUS_TODO:
+        #     for task_id in self.task_list:
+        #         if self.task_list[task_id]["status"] == status:                    
+        #             self.print_task(task_id)
+        # elif status == STATUS_IN_PROGRESS:
+        #     for task_id in self.task_list:
+        #         if self.task_list[task_id]["status"] == status:                    
+        #             self.print_task(task_id)
         else:
             for task_id in self.task_list:
                 self.print_task(task_id)
@@ -140,11 +185,56 @@ class TaskManager:
         print(elements)
         print(corner + border + corner)
 
+    def print_status_count(self):
+        print(f"Total tasks todo: {self.todo_count}\nTotal tasks done: {self.done_count}\nTotal tasks in-progress: {self.in_progress_count}")
+
     # Updates the date of the updatedAt attribute
     def task_updated(self, task_id):
             task_updatedAt = datetime.datetime.now().strftime("%c")
             self.task_list[task_id]["updatedAt"] = task_updatedAt
-            
+    
+    def decrease_status_count(self, status="todo"):
+        if status != "todo":
+            if status == STATUS_DONE:
+                self.done_count = max(0, self.done_count - 1)
+            else:
+                self.in_progress_count = max(0, self.in_progress_count- 1)
+        else:
+            self.todo_count = max(0, self.todo_count- 1)
+    
+    def increase_status_count(self, status="todo"):
+        if status != "todo":
+            if status == STATUS_DONE:
+                self.done_count += 1
+                # print(f"Increased done count to: {self.done_count}")
+            else:
+                self.in_progress_count += 1
+                # print(f"Increased in-progress count to: {self.in_progress_count}")
+        else:
+            self.todo_count += 1
+            # print(f"Increased todo count to: {self.todo_count}")
+
+    # TODO: store the values on a dictionary and add it to a JSON file algonside the task list.
+    def update_status_count(self):
+        # self.print_status_count()
+        total_tasks = self.done_count + self.todo_count + self.in_progress_count
+
+        for key in self.task_list:
+            if self.task_list[key]["status"] == STATUS_DONE:
+                self.increase_status_count(STATUS_DONE)
+            elif self.task_list[key]["status"] == STATUS_IN_PROGRESS:
+                self.increase_status_count(STATUS_IN_PROGRESS)
+            elif self.task_list[key]["status"] == STATUS_TODO:
+                self.increase_status_count()
+        total_tasks = self.done_count + self.todo_count + self.in_progress_count
+        # print(f"Total tasks: {total_tasks}")
+        
+        if total_tasks == len(self.task_list):
+            print("Status counters loaded successfully.")
+            self.print_status_count()
+        else:
+            print("Status counters failed to load.")
+
     # Saves tasks to a JSON file.
     def save_data(self):
         print("Saving to JSON file...")
@@ -157,21 +247,13 @@ class TaskManager:
         with open(JSON_FILE_PATH, "r") as json_file:
             self.task_list = json.loads(json_file.read())
             print("JSON file loaded successfully.")
+        if self.done_count + self.todo_count + self.in_progress_count != len(self.task_list):
+            self.update_status_count()
+        else:
+            return
     
 
 def main():
-
-    # Creates TaskManager object to handle tasks operations
-    tm = TaskManager()
-    # Checks if there is any data to load.
-    if os.path.isfile(JSON_FILE_PATH):
-        tm.load_data()
-    else:
-        print("JSON file not found. A new file will be created.")
-        with open(JSON_FILE_PATH, "w") as json_file:
-            json_file.write("{}")
-            print(f"File '{JSON_FILE_PATH} successfully created.\n")
-        tm.load_data()
 
     parser = argparse.ArgumentParser(description='Task Tracker CLI App.')
     subparsers = parser.add_subparsers(dest='command', help='Available commands to run: add, update, delete, list, mark-in-progress, mark-done, mark-todo', required=True)
@@ -201,6 +283,18 @@ def main():
     list_tasks.add_argument("--todo", "-t", action="store_true", help="Shows all tasks with status: todo")
     
     args = parser.parse_args()
+
+    # Creates TaskManager object to handle tasks operations
+    tm = TaskManager()
+    # Checks if there is any data to load.
+    if os.path.isfile(JSON_FILE_PATH):
+        tm.load_data()
+    else:
+        print("JSON file not found. A new file will be created.")
+        with open(JSON_FILE_PATH, "w") as json_file:
+            json_file.write("{}")
+            print(f"File '{JSON_FILE_PATH} successfully created.\n")
+        tm.load_data()
 
     if args.command == 'add':
         tm.add_task(args.task_description)
