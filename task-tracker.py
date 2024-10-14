@@ -36,7 +36,7 @@ class TaskManager:
         new_task = dict(description=new_task_description,status=new_task_status,createdAt=new_task_createdAt,updatedAt=new_task_updatedAt)
         self.task_list[new_task_id] = new_task
         self.increase_status_count()
-        print(f"New task added successfully (ID: {new_task_id}).")
+        print_success(f"New task added successfully (ID: {new_task_id}).")
         self.print_task(new_task_id)
 
         self.save_data()
@@ -44,7 +44,7 @@ class TaskManager:
     # Changes task description.
     def update_task(self, task_id, new_description):
         if len(self.task_list) == 0:
-            print(ERROR_TASK_LIST_EMPTY)
+            print_error(ERROR_TASK_LIST_EMPTY)
             return
 
         if self.task_list.get(task_id) != None: 
@@ -52,15 +52,15 @@ class TaskManager:
             self.task_list[task_id]["description"] = new_description
             # self.description_col_spacing = len(str(new_description)) if len(str(self.description_col_spacing)) < len(str(new_description)) else self.description_col_spacing
             self.task_updated(task_id)
-            print(f"Task updated successfully\nFrom: {old_description}\n To: {self.task_list[task_id]["description"]}")        
+            print_success(f"Task updated successfully\nFrom: {old_description}\n To: {self.task_list[task_id]["description"]}")        
             self.save_data()
         else:
-            print(f"Error: Task with ID: {task_id} does not exist.")
+            print_error(f"Error: Task with ID: {task_id} does not exist.")
 
     def delete_task(self, task_id):
         # Here we check if the list is empty.
         if len(self.task_list) == 0:
-            print(ERROR_TASK_LIST_EMPTY)
+            print_error(ERROR_TASK_LIST_EMPTY)
             return
         # Checks if the tasks exist.
         if self.task_list.get(task_id) != None:
@@ -68,21 +68,21 @@ class TaskManager:
             if len(self.task_list) == 1:
                 deleted_task = self.task_list.pop(task_id)
                 
-                print("Task deleted successfully.")
-                self.print_status_count()
+                print_success("Task deleted successfully.")
+                # self.print_status_count()
                 self.decrease_status_count(deleted_task[task_id]["status"])
-                self.print_status_count()
+                # self.print_status_count()
                 self.save_data()
             elif task_id == str(len(self.task_list)):
                 deleted_task = self.task_list.pop(task_id)
-                print("Task deleted successfully.")
-                self.print_status_count()
+                print_success("Task deleted successfully.")
+                # self.print_status_count()
                 self.decrease_status_count(deleted_task[task_id]["status"])
-                self.print_status_count()
+                # self.print_status_count()
                 self.save_data()
             else:
                 deleted_task = self.task_list.pop(task_id)
-                print(f"This is the element that will be deleted:\n {deleted_task}")
+                #print(f"This is the element that will be deleted:\n {deleted_task}")
                 new_dict = dict()
                 # When there are more than 1 task and the task deleted is not the last one, we need to re-assign the IDs
                 for count, key in enumerate(self.task_list, start=1):
@@ -90,25 +90,25 @@ class TaskManager:
                 
                 self.task_list = new_dict.copy()
                 
-                print("Task deleted successfully.")
-                self.print_status_count()
+                print_success("Task deleted successfully.")
+                # self.print_status_count()
                 self.decrease_status_count(deleted_task["status"])
-                self.print_status_count()
+                # self.print_status_count()
                 self.save_data()
         else:
-            print(f"Error: Task with ID: {task_id} does not exist.")
+            print_error(f"Error: Task with ID: {task_id} does not exist.")
     
     def update_status(self, task_id, new_status):
         
         if len(self.task_list) == 0:
-            print(ERROR_TASK_LIST_EMPTY)
+            print_error(ERROR_TASK_LIST_EMPTY)
             return
         # First we check if the task exist.
         if self.task_list.get(task_id) != None:
             current_status = self.task_list[task_id]["status"]
             # Here we check if the current status is the same as the new status.
             if new_status == current_status:
-                print(f"Error: Task already with status: {new_status}.")
+                print_error(f"Error: Task already with status: {new_status}.")
                 return
             self.increase_status_count(new_status)
             self.decrease_status_count(current_status)
@@ -118,12 +118,12 @@ class TaskManager:
             # self.print_status_count()
             self.save_data()
         else:
-            print(f"Error: Task with ID: {task_id} does not exist.")
+            print_error(f"Error: Task with ID: {task_id} does not exist.")
 
     # If no argument is passed then lists all tasks.
     def list_tasks(self, args):
         if len(self.task_list) == 0:
-            print(ERROR_TASK_LIST_EMPTY)
+            print_error(ERROR_TASK_LIST_EMPTY)
             return
         # TODO: Print feedback when there are no task with the specified status. For example: print("There are no task marked as 'done'")
         if args.done:
@@ -141,13 +141,13 @@ class TaskManager:
     def print_list(self, status="all"):        
         if status != "all":
             if status == STATUS_DONE and self.done_count == 0:
-                print(f"Error: There are no tasks marked as: {STATUS_DONE}")
+                print_error(f"Error: There are no tasks marked as: {STATUS_DONE}")
                 return
             if status == STATUS_TODO and self.todo_count == 0:
-                print(f"Error: There are no tasks marked as: {STATUS_TODO}")
+                print_error(f"Error: There are no tasks marked as: {STATUS_TODO}")
                 return
             if status == STATUS_IN_PROGRESS and self.in_progress_count == 0:
-                print(f"Error: There are no tasks marked as: {STATUS_IN_PROGRESS}")
+                print_error(f"Error: There are no tasks marked as: {STATUS_IN_PROGRESS}")
                 return
             for task_id in self.task_list:
                 if self.task_list[task_id]["status"] == status:                    
@@ -230,27 +230,38 @@ class TaskManager:
         # print(f"Total tasks: {total_tasks}")
         
         if total_tasks == len(self.task_list):
-            print("Status counters loaded successfully.")
-            self.print_status_count()
+            print_success("Status counters loaded successfully.")
+            # self.print_status_count()
         else:
-            print("Status counters failed to load.")
+            print_error("Error: Status counters failed to load.")
 
     # Saves tasks to a JSON file.
     def save_data(self):
         print("Saving to JSON file...")
         with open(JSON_FILE_PATH, "w") as outfile:
             json.dump(self.task_list,outfile,indent=4)
-            print("JSON file updated successfully.")
+            print_success("JSON file updated successfully.")
     
     # Load tasks from a JSON file.
     def load_data(self):        
         with open(JSON_FILE_PATH, "r") as json_file:
             self.task_list = json.loads(json_file.read())
-            print("JSON file loaded successfully.")
+            print_success("JSON file loaded successfully.")
         if self.done_count + self.todo_count + self.in_progress_count != len(self.task_list):
             self.update_status_count()
         else:
             return
+    
+# class colors:
+#     pass
+
+# Uses ANSI Escape Code to color the message. For more info check this site: https://ozzmaker.com/add-colour-to-text-in-python/
+def print_error(message):
+    print("\033[1;31;40m " + message + "\033[0;0m\n")
+def print_warning(message):
+    print("\033[1;33;40m " + message + "\033[0;0m\n")
+def print_success(message):
+    print("\033[1;32;40m " + message + "\033[0;0m\n")
     
 
 def main():
@@ -290,10 +301,10 @@ def main():
     if os.path.isfile(JSON_FILE_PATH):
         tm.load_data()
     else:
-        print("JSON file not found. A new file will be created.")
+        print_warning("JSON file not found. A new file will be created.")
         with open(JSON_FILE_PATH, "w") as json_file:
             json_file.write("{}")
-            print(f"File '{JSON_FILE_PATH} successfully created.\n")
+            print_success(f"File '{JSON_FILE_PATH} successfully created.\n")
         tm.load_data()
 
     if args.command == 'add':
