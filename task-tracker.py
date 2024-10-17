@@ -14,6 +14,8 @@ ERROR_TASK_LIST_EMPTY = "Error: Task list is emtpy."
 
 JSON_FILE_PATH = "tasks_data.json"
 
+USAGE = f'%(prog)s [option]\n{"or:":>6} %(prog)s command [option]\n{"":>9}command: the positional argument'
+
 class TaskManager:
 
     # TODO:
@@ -266,29 +268,29 @@ def print_success(message):
 
 def main():
 
-    parser = argparse.ArgumentParser(description='Task Tracker CLI App.')
-    subparsers = parser.add_subparsers(dest='command', help='Available commands to run: add, update, delete, list, mark-in-progress, mark-done, mark-todo', required=True)
+    parser = argparse.ArgumentParser(usage=USAGE, description='Task Tracker CLI App.')
+    subparsers = parser.add_subparsers(dest='command', required=True, metavar="")
 
-    add_task = subparsers.add_parser('add', help='Add a task to the task list. Default status: todo')
-    add_task.add_argument("task_description", type=str, help="Task description must be inside quotes or double quotes.")
+    add_task = subparsers.add_parser('add', help='Add a task to the task list. Default status: todo.', usage=f"{parser.prog} add task_description")
+    add_task.add_argument("task_description", type=str, help="Task description must be inside quotes or double quotes if it contains white space/s.")
 
-    update_task = subparsers.add_parser('update', help='Updates task description.')
+    update_task = subparsers.add_parser('update', help='Updates task description.', usage=f"{parser.prog} update id new_description")
     update_task.add_argument('id', type=str, help="id number of the task that will be updated.")
-    update_task.add_argument('new_description', type=str, help="New description must be inside quotes or double quotes.")
+    update_task.add_argument('new_description', type=str, help="New description must be inside quotes or double quotes if it contains white space/s.")
 
-    delete_task = subparsers.add_parser('delete', help='Delete task.')
+    delete_task = subparsers.add_parser('delete', help='Delete task.', usage=f"{parser.prog} delete id")
     delete_task.add_argument('id', type=str, help="id number of the task that will be deleted.")
 
-    task_in_progress = subparsers.add_parser('mark-in-progress', help='Mark task as in progress.')
+    task_in_progress = subparsers.add_parser('mark-in-progress', help='Mark task as in progress.', usage=f"{parser.prog} mark-in-progress id")
     task_in_progress.add_argument('id', type=str, help="id number of the task.")
 
-    task_done = subparsers.add_parser('mark-done', help='Mark task as done.')
+    task_done = subparsers.add_parser('mark-done', help='Mark task as done.', usage=f"{parser.prog} mark-done id")
     task_done.add_argument('id', type=str, help="id number of the task.")
 
-    task_todo = subparsers.add_parser('mark-todo', help='Mark task as to do.')
+    task_todo = subparsers.add_parser('mark-todo', help='Mark task as to do.', usage=f"{parser.prog} mark-todo id")
     task_todo.add_argument('id', type=str, help="id number of the task.")
 
-    list_tasks = subparsers.add_parser('list', usage="list [option]" ,description='Shows tasks.')
+    list_tasks = subparsers.add_parser('list', usage=f"{parser.prog} list [option]" ,description='Shows tasks.')
     list_tasks.add_argument("--in-progress", "-i", action="store_true", help="Shows all tasks with status: in-progress")
     list_tasks.add_argument("--done", '-d', action="store_true", help="Shows all tasks with status: done")
     list_tasks.add_argument("--todo", "-t", action="store_true", help="Shows all tasks with status: todo")
