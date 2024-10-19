@@ -242,7 +242,7 @@ def print_success(message):
 
 
 def main():
-    # TODO: Check if there are other areas to improve in the usage messages.
+    
     parser = argparse.ArgumentParser(usage=USAGE_MESSAGE, description='Task Tracker CLI App.\nUse -h or --help next to a command to get more info on how to use it.')
     subparsers = parser.add_subparsers(dest='command', required=True, metavar="")
 
