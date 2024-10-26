@@ -16,9 +16,6 @@ USAGE_MESSAGE = f'%(prog)s [option]\n{"or:":>6} %(prog)s command [option]\n{"":>
 
 class TaskManager:
 
-    # TODO:
-    # A JSON file that saves the task list and the task coutners
-
     # Where tasks are stored
     task_list = dict()
 
@@ -55,7 +52,7 @@ class TaskManager:
             self.task_list[task_id]["description"] = new_description
             # self.description_col_spacing = len(str(new_description)) if len(str(self.description_col_spacing)) < len(str(new_description)) else self.description_col_spacing
             self.task_updated(task_id)
-            print_success(f"Task updated successfully\nFrom: {old_description}\n To: {self.task_list[task_id]["description"]}")        
+            print_success(f"Task updated successfully\nFrom: {old_description}\n  To: {self.task_list[task_id]["description"]}")        
             self.save_data()
         else:
             print_error(f"Error: Task with ID: {task_id} does not exist.")
@@ -91,8 +88,7 @@ class TaskManager:
         else:
             print_error(f"Error: Task with ID: {task_id} does not exist.")
     
-    def update_status(self, task_id, new_status):
-        
+    def change_status(self, task_id, new_status):        
         if len(self.task_list) == 0:
             print_error(ERROR_TASK_LIST_EMPTY)
             return
@@ -194,41 +190,33 @@ class TaskManager:
         else:
             self.tasks_todo += 1
 
-    # TODO: store the values on a dictionary and add it to a JSON file algonside the task list.
-    def update_status_count(self):
-        # self.print_status_count()
-        total_tasks = self.tasks_done + self.tasks_todo + self.tasks_in_progress
-
-        for key in self.task_list:
-            if self.task_list[key]["status"] == STATUS_DONE:
-                self.increase_status_amount(STATUS_DONE)
-            elif self.task_list[key]["status"] == STATUS_IN_PROGRESS:
-                self.increase_status_amount(STATUS_IN_PROGRESS)
-            elif self.task_list[key]["status"] == STATUS_TODO:
-                self.increase_status_amount()
-        total_tasks = self.tasks_done + self.tasks_todo + self.tasks_in_progress
-        
-        if total_tasks == len(self.task_list):
-            print_success("Status counters loaded successfully.")
-        else:
-            print_error("Error: Status counters failed to load.")
-
-    # Saves tasks to a JSON file.
+    # Saves tasks data to a JSON file.
     def save_data(self):
-        print("Saving to JSON file...")
+        print("Saving to JSON file...")        
+
         with open(JSON_FILE_PATH, "w") as outfile:
-            json.dump(self.task_list,outfile,indent=4)
+            # Saves counters to a dictionary
+            task_counters = dict(done=self.tasks_done,todo=self.tasks_todo,in_progress=self.tasks_in_progress)
+            # Crates a single dictionary for all the data
+            tasks_data = dict(counters=task_counters,tasks=self.task_list)
+            
+            json.dump(tasks_data,outfile,indent=4)
             print_success("JSON file updated successfully.")
     
-    # Load tasks from a JSON file.
+    # Load tasks data from a JSON file.
     def load_data(self):        
         with open(JSON_FILE_PATH, "r") as json_file:
-            self.task_list = json.loads(json_file.read())
+            # self.task_list = json.loads(json_file.read())
+            tasks_data = json.loads(json_file.read())
+            
+            # Loads counters
+            self.tasks_done = tasks_data["counters"]["done"]
+            self.tasks_todo = tasks_data["counters"]["todo"]
+            self.tasks_in_progress = tasks_data["counters"]["in_progress"]
+            # Loads tasks
+            self.task_list = tasks_data["tasks"]
+
             print_success("JSON file loaded successfully.")
-        if self.tasks_done + self.tasks_todo + self.tasks_in_progress != len(self.task_list):
-            self.update_status_count()
-        else:
-            return
     
 # Uses ANSI Escape Codes to color the messages. For more info check this site: https://ozzmaker.com/add-colour-to-text-in-python/
 def print_error(message):
@@ -291,11 +279,11 @@ def main():
     elif args.command == 'delete':
         tm.delete_task(args.id)
     elif args.command == 'mark-in-progress':
-        tm.update_status(args.id, STATUS_IN_PROGRESS)
+        tm.change_status(args.id, STATUS_IN_PROGRESS)
     elif args.command == 'mark-done':
-        tm.update_status(args.id, STATUS_DONE)
+        tm.change_status(args.id, STATUS_DONE)
     elif args.command == 'mark-todo':
-        tm.update_status(args.id, STATUS_TODO)
+        tm.change_status(args.id, STATUS_TODO)
     elif args.command == 'list':
         tm.list_tasks(args)
 
