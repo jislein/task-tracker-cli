@@ -153,7 +153,7 @@ class TaskManager:
     # Prints a table with task information
     def print_task(self, task_id):
         task = self.task_list[task_id]
-        
+        # Spacing formatting for the rows (columns width).
         spacing = "| {:<9} | {:<" + f"{11 if len(task["description"])+2<11 else len(task["description"])+2}"+"} | {:<" + f"{8 if len(task["status"])<11 else len(task["status"])+2}"+"} | {:<" + f"{24+2}"+"} | {:<" + f"{len(task["updatedAt"])}"+"} |"
         
         header = spacing.format("Task ID", "Description", "Status", "Creation date", "Last updated")
