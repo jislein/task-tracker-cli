@@ -30,40 +30,40 @@ cd task-tracker-cli
 You can use `-h` or `--help` with any command to see its usage message.
 
 ```bash
-task-tracker.py --help # To see the list of available commands
+py task-tracker.py --help # To see the list of available commands
 ```
 
 **Add a task**:
 ```bash
-task-tracker.py add "Buy groceries"
+py task-tracker.py add "Buy groceries"
 ```
 
 **Update a task**:
 ```bash
-task-tracker.py update 1 "Buy groceries and cook dinner"
+py task-tracker.py update 1 "Buy groceries and cook dinner"
 ```
 
 **Delete a task**:
 ```bash
-task-tracker.py delete 1
+py task-tracker.py delete 1
 ```
 
 **Mark a task as: `in-progress`, `done` or `todo`**:
 ```bash
-task-tracker.py mark-in-progress 1
-task-tracker.py mark-done 1
-task-tracker.py mark-todo 1
+py task-tracker.py mark-in-progress 1
+py task-tracker.py mark-done 1
+py task-tracker.py mark-todo 1
 ```
 
 **List all tasks**:
 ```bash
-task-tracker.py list
+py task-tracker.py list
 ```
 
 **List task by its status**:
 ```bash
-task-tracker.py list --done
-task-tracker.py list --todo
-task-tracker.py list --in-progress
+py task-tracker.py list --done
+py task-tracker.py list --todo
+py task-tracker.py list --in-progress
 ```
 
