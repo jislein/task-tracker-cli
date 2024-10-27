@@ -36,8 +36,8 @@ class TaskManager:
         new_task = dict(description=new_task_description,status=new_task_status,createdAt=new_task_createdAt,updatedAt=new_task_updatedAt)
         self.task_list[new_task_id] = new_task
         self.increase_status_amount()
-        print_success(f"New task added successfully (ID: {new_task_id}).")
         self.print_task(new_task_id)
+        print_success(f"New task added successfully (ID: {new_task_id}).")
 
         self.save_data()
     
@@ -57,6 +57,11 @@ class TaskManager:
         else:
             print_error(f"Error: Task with ID: {task_id} does not exist.")
 
+    # Updates the date of the updatedAt attribute
+    def task_updated(self, task_id):
+            task_updatedAt = datetime.datetime.now().strftime("%c")
+            self.task_list[task_id]["updatedAt"] = task_updatedAt
+
     def delete_task(self, task_id):
         # Here we check if the list is empty.
         if len(self.task_list) == 0:
@@ -70,11 +75,13 @@ class TaskManager:
                 print_success("Task deleted successfully.")
                 self.decrease_status_amount(deleted_task[task_id]["status"])
                 self.save_data()
+
             elif task_id == str(len(self.task_list)):
                 deleted_task = self.task_list.pop(task_id)
                 print_success("Task deleted successfully.")
                 self.decrease_status_amount(deleted_task[task_id]["status"])
                 self.save_data()
+
             else:
                 deleted_task = self.task_list.pop(task_id)
                 new_dict = dict()
@@ -166,11 +173,6 @@ class TaskManager:
 
     def print_status_count(self):
         print(f"Total tasks todo: {self.tasks_todo}\nTotal tasks done: {self.tasks_done}\nTotal tasks in-progress: {self.tasks_in_progress}")
-
-    # Updates the date of the updatedAt attribute
-    def task_updated(self, task_id):
-            task_updatedAt = datetime.datetime.now().strftime("%c")
-            self.task_list[task_id]["updatedAt"] = task_updatedAt
     
     def decrease_status_amount(self, status="todo"):
         if status != "todo":
