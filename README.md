@@ -12,7 +12,7 @@ This is my solution for the [task-tracker](https://roadmap.sh/projects/task-trac
 
 ## Requirements
 
-You must have installed Python 3.7 or greater to use this program.
+You must have installed Python 3.7.0 or greater to use this program.
 
 [Click here to download Python.](https://www.python.org/downloads/)
 
