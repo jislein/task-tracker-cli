@@ -1,8 +1,8 @@
 # Task Tracker
 
-This is my solution for the [task-tracker](https://roadmap.sh/projects/task-tracker) challenge from [roadmap.sh](https://roadmap.sh/).
+This is [my solution](https://roadmap.sh/projects/task-tracker/solutions?u=671d774931d65c235df19a48) for the [task-tracker](https://roadmap.sh/projects/task-tracker) challenge from [roadmap.sh](https://roadmap.sh/).
 
-## Features
+## ✅ Features
 
 - Add a new task with a description and save it to a JSON file.
 - Update the description of an existing task.
@@ -10,13 +10,13 @@ This is my solution for the [task-tracker](https://roadmap.sh/projects/task-trac
 - List all tasks or filter them by status: `todo`, `in-progress` or `done`.
 - Mark tasks as: `in-progress`, `done` or `todo`.
 
-## Requirements
+## :clipboard: Requirements
 
 You must have installed Python 3.7.0 or greater to use this program.
 
 [Click here to download Python.](https://www.python.org/downloads/)
 
-## Installation
+## :hammer_and_wrench: Installation
 
 Clone the repository and `cd` to the project folder:
 
@@ -25,7 +25,7 @@ git clone https://github.com/jislein/task-tracker-cli.git
 cd task-tracker-cli
 ```
 
-## Usage
+## :notebook_with_decorative_cover: Usage
 
 You can use `-h` or `--help` with any command to see its usage message.
 
