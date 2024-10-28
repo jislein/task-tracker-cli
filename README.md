@@ -25,7 +25,7 @@ git clone https://github.com/jislein/task-tracker-cli.git
 cd task-tracker-cli
 ```
 
-## :notebook_with_decorative_cover: Usage
+## ⚡ Usage
 
 You can use `-h` or `--help` with any command to see its usage message.
 
