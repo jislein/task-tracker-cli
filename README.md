@@ -35,12 +35,12 @@ py task-tracker.py --help # To see the list of available commands
 
 **Add a task**:
 ```bash
-py task-tracker.py add "Buy groceries"
+py task-tracker.py add "Start learning Python"
 ```
 
 **Update a task**:
 ```bash
-py task-tracker.py update 1 "Buy groceries and cook dinner"
+py task-tracker.py update 1 "Start learning Python by building projects"
 ```
 
 **Delete a task**:
